@@ -14,6 +14,7 @@ class Bugsnag_Notifier_Model_Observer
     private $apiKey;
     private $notifySeverities;
     private $filterFields;
+    private $environment;
 
     public function fireTestEvent($apiKey) {
         if (strlen($apiKey) != 32) {
@@ -40,7 +41,10 @@ class Bugsnag_Notifier_Model_Observer
         $this->apiKey = Mage::getStoreConfig("dev/Bugsnag_Notifier/apiKey");
         $this->notifySeverities = Mage::getStoreConfig("dev/Bugsnag_Notifier/severities");
         $this->filterFields = Mage::getStoreConfig("dev/Bugsnag_Notifier/filterFields");
-        $this->environment = trim(Mage::getStoreConfig("dev/Bugsnag_Notifier/environment"));
+        $environment = trim(Mage::getStoreConfig("dev/Bugsnag_Notifier/environment"));
+        if ($environment) {
+            $this->environment = $environment;
+        }
 
         // Activate the bugsnag client
         if (!empty($this->apiKey)) {

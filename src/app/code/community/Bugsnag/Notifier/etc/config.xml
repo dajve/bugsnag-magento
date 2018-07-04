@@ -2,9 +2,10 @@
 <config>
     <modules>
         <Bugsnag_Notifier>
-            <version>1.0.0</version>
+            <version>1.1.0</version>
         </Bugsnag_Notifier>
     </modules>
+
     <global>
         <models>
             <Bugsnag_Notifier>
@@ -33,6 +34,7 @@
             </core>
         </log>
     </global>
+
     <admin>
         <routers>
             <adminhtml>
@@ -44,4 +46,13 @@
             </adminhtml>
         </routers>
     </admin>
+
+    <default>
+        <dev>
+            <Bugsnag_Notifier>
+                <native_logs>1</native_logs>
+                <logs_to_files>1</logs_to_files>
+            </Bugsnag_Notifier>
+        </dev>
+    </default>
 </config>

@@ -2,7 +2,7 @@
 
 class Bugsnag_Notifier_Model_Observer
 {
-    private static $DEFAULT_NOTIFY_SEVERITIES = "fatal,error";
+    private static $DEFAULT_NOTIFY_SEVERITIES = "error";
 
     private static $NOTIFIER = array(
         "name" => "Bugsnag Magento (Official)",
@@ -101,7 +101,7 @@ class Bugsnag_Notifier_Model_Observer
     private function errorReportingLevel()
     {
         if (empty($this->notifySeverities)) {
-            $notifySeverities = "fatal,error";
+            $notifySeverities = static::$DEFAULT_NOTIFY_SEVERITIES;
         } else {
             $notifySeverities = $this->notifySeverities;
         }
@@ -121,22 +121,37 @@ class Bugsnag_Notifier_Model_Observer
         return array_map('trim', explode("\n", $this->filterFields));
     }
 
-    public function fireException($message, $severity = null)
+    /**
+     * @param mixed $message
+     * @param null|string $severity
+     * @return bool
+     */
+    public function sendCustomMessage($message, $severity = null)
     {
+        // only init once
         if (!$this->client) {
             $this->initBugsnag();
         }
 
+        // bail out, bugsnag probably not used
+        if (!$this->client) {
+            return false;
+        }
+
+        // send only specified severities
         $notifyOn = empty($this->notifySeverities) ?
             static::$DEFAULT_NOTIFY_SEVERITIES :
             $this->notifySeverities;
         $notifyOn = array_map('trim', explode(',', $notifyOn));
 
         if (!in_array($severity, $notifyOn)) {
-            return;
+            return false;
         }
 
-        $this->client->setBeforeNotifyFunction(function($error) {
+        // when logging magento logs to bugsnag, the last 3 entries in the call stack
+        // will always be Mage, Zend_Log and Zend_Log_Writer_Abstract.
+        // filtering these out for a cleaner backtrace
+        $this->client->setBeforeNotifyFunction(function ($error) {
             if (empty($error->stacktrace->frames)) {
                 return;
             }
@@ -160,6 +175,8 @@ class Bugsnag_Notifier_Model_Observer
 
         $errorClass = 'Application Error';
         $errorMessage = array_shift($messageArray);
+
+        // handle exception messages
         if (preg_match('/exception \'(.*)\' with message \'(.*)\' in .*/', $errorMessage, $matches)) {
             $errorMessage = $matches[2];
             $errorClass = $matches[1];
@@ -175,6 +192,8 @@ class Bugsnag_Notifier_Model_Observer
             array("notifier" => self::$NOTIFIER),
             $severity
         );
+
+        return true;
     }
 
 }

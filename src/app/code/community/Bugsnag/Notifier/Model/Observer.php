@@ -90,7 +90,7 @@ class Bugsnag_Notifier_Model_Observer
         }
     }
 
-    private function releaseStage()
+    protected function releaseStage()
     {
         if(!is_null($this->environment)) {
             return $this->environment;

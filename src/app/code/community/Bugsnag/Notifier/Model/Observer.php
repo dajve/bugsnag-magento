@@ -10,6 +10,7 @@ class Bugsnag_Notifier_Model_Observer
         "url" => "https://bugsnag.com/notifiers/magento"
     );
 
+    /** @var Bugsnag_Client */
     private $client;
     private $apiKey;
     private $notifySeverities;
@@ -55,9 +56,11 @@ class Bugsnag_Notifier_Model_Observer
         if (!empty($this->apiKey)) {
             $this->client = new Bugsnag_Client($this->apiKey);
 
-            $this->client->setReleaseStage($this->releaseStage())
-                         ->setErrorReportingLevel($this->errorReportingLevel())
-                         ->setFilters($this->filterFields());
+            $this->client
+                ->setProjectRoot(Mage::getBaseDir() . DS)
+                ->setReleaseStage($this->releaseStage())
+                ->setErrorReportingLevel($this->errorReportingLevel())
+                ->setFilters($this->filterFields());
             if (null !== $this->appVersion) {
                 $this->client->setAppVersion($this->appVersion);
             }
@@ -118,29 +121,59 @@ class Bugsnag_Notifier_Model_Observer
         return array_map('trim', explode("\n", $this->filterFields));
     }
 
-    public function fireException($message)
+    public function fireException($message, $severity = null)
     {
-        $this->initBugsnag();
-        $message = trim($message);
-        $messageArray = explode("\n", $message);
-        if (empty($messageArray)) {
+        if (!$this->client) {
+            $this->initBugsnag();
+        }
+
+        $notifyOn = empty($this->notifySeverities) ?
+            static::$DEFAULT_NOTIFY_SEVERITIES :
+            $this->notifySeverities;
+        $notifyOn = array_map('trim', explode(',', $notifyOn));
+
+        if (!in_array($severity, $notifyOn)) {
             return;
         }
-        $errorClass = 'PHP Error';
+
+        $this->client->setBeforeNotifyFunction(function($error) {
+            if (empty($error->stacktrace->frames)) {
+                return;
+            }
+
+            $ignoredTraces = array(
+                'Zend_Log_Writer_Abstract::write' => 0,
+                'Zend_Log::log' => 1,
+                'Mage::log' => 2,
+            );
+            foreach ($error->stacktrace->frames as $k => $data) {
+                if (isset($ignoredTraces[$data['method']]) && $k == $ignoredTraces[$data['method']]) {
+                    unset($error->stacktrace->frames[$k]);
+                }
+            }
+
+            $error->stacktrace->frames = array_values($error->stacktrace->frames);
+        });
+
+        $message = trim($message);
+        $messageArray = explode("\n", $message);
+
+        $errorClass = 'Application Error';
         $errorMessage = array_shift($messageArray);
-        $matches = array();
         if (preg_match('/exception \'(.*)\' with message \'(.*)\' in .*/', $errorMessage, $matches)) {
             $errorMessage = $matches[2];
             $errorClass = $matches[1];
         }
+
         if (count($messageArray) > 0) {
             $errorMessage .= '... [truncated]';
         }
 
         $this->client->notifyError(
-          $errorClass,
-          $errorMessage,
-          array("notifier" => self::$NOTIFIER)
+            $errorClass,
+            $errorMessage,
+            array("notifier" => self::$NOTIFIER),
+            $severity
         );
     }
 

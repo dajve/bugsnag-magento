@@ -1,47 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
-  <modules>
-    <Bugsnag_Notifier>
-      <version>1.0.0</version>
-    </Bugsnag_Notifier>
-  </modules>
-  <global>
-    <models>
-      <Bugsnag_Notifier>
-        <class>Bugsnag_Notifier_Model</class>
-      </Bugsnag_Notifier>
-    </models>
+    <modules>
+        <Bugsnag_Notifier>
+            <version>1.0.0</version>
+        </Bugsnag_Notifier>
+    </modules>
+    <global>
+        <models>
+            <Bugsnag_Notifier>
+                <class>Bugsnag_Notifier_Model</class>
+            </Bugsnag_Notifier>
+        </models>
     <helpers>
       <notifier>
         <class>Bugsnag_Notifier_Helper</class>
       </notifier>
     </helpers>
-    <events>
-      <controller_action_predispatch>
-        <observers>
-          <bugsnag_controller_action_predispatch>
-            <type>singleton</type>
-            <class>Bugsnag_Notifier_Model_Observer</class>
-            <method>initBugsnag</method>
-          </bugsnag_controller_action_predispatch>
-        </observers>
-      </controller_action_predispatch>
-    </events>
-    <log>
-      <core>
-        <writer_model>Bugsnag_Notifier_Model_Log_Writer_Stream</writer_model>
-      </core>
-    </log>
-  </global>
-  <admin>
-    <routers>
-      <adminhtml>
-        <args>
-          <modules>
-            <Bugsnag_Notifier after="Mage_Adminhtml">Bugsnag_Notifier</Bugsnag_Notifier>
-          </modules>
-        </args>
-      </adminhtml>
-    </routers>
-  </admin>
+        <events>
+            <controller_action_predispatch>
+                <observers>
+                    <bugsnag_controller_action_predispatch>
+                        <type>singleton</type>
+                        <class>Bugsnag_Notifier_Model_Observer</class>
+                        <method>initBugsnag</method>
+                    </bugsnag_controller_action_predispatch>
+                </observers>
+            </controller_action_predispatch>
+        </events>
+        <log>
+            <core>
+                <writer_model>Bugsnag_Notifier_Model_Log_Writer_Stream</writer_model>
+            </core>
+        </log>
+    </global>
+    <admin>
+        <routers>
+            <adminhtml>
+                <args>
+                    <modules>
+                        <Bugsnag_Notifier after="Mage_Adminhtml">Bugsnag_Notifier</Bugsnag_Notifier>
+                    </modules>
+                </args>
+            </adminhtml>
+        </routers>
+    </admin>
 </config>

@@ -12,17 +12,17 @@
                 <class>Bugsnag_Notifier_Model</class>
             </Bugsnag_Notifier>
         </models>
-    <helpers>
-      <notifier>
-        <class>Bugsnag_Notifier_Helper</class>
-      </notifier>
-    </helpers>
+        <helpers>
+            <notifier>
+                <class>Bugsnag_Notifier_Helper</class>
+            </notifier>
+        </helpers>
         <events>
             <controller_action_predispatch>
                 <observers>
                     <bugsnag_controller_action_predispatch>
                         <type>singleton</type>
-                        <class>Bugsnag_Notifier_Model_Observer</class>
+                        <class>Bugsnag_Notifier/Observer</class>
                         <method>initBugsnag</method>
                     </bugsnag_controller_action_predispatch>
                 </observers>

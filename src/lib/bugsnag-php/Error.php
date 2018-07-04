@@ -101,12 +101,12 @@ class Bugsnag_Error
         if (version_compare(PHP_VERSION, '7.0.0', '>=')) {
             if (!$exception instanceof \Throwable) {
                 error_log('Bugsnag Warning: Exception must implement interface \Throwable.');
-                return;
+                return $this;
             }
         } else {
             if (!$exception instanceof \Exception) {
                 error_log('Bugsnag Warning: Exception must be instance of \Exception.');
-                return;
+                return $this;
             }
         }
 
@@ -212,7 +212,7 @@ class Bugsnag_Error
                     // Check if this key should be filtered
                     $shouldFilter = false;
                     foreach ($this->config->filters as $filter) {
-                        if (strpos($key, $filter) !== false) {
+                        if (!empty($filter) && strpos($key, $filter) !== false) {
                             $shouldFilter = true;
                             break;
                         }

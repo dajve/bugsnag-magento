@@ -11,6 +11,11 @@
         <class>Bugsnag_Notifier_Model</class>
       </Bugsnag_Notifier>
     </models>
+    <helpers>
+      <notifier>
+        <class>Bugsnag_Notifier_Helper</class>
+      </notifier>
+    </helpers>
     <events>
       <controller_action_predispatch>
         <observers>
@@ -22,6 +27,11 @@
         </observers>
       </controller_action_predispatch>
     </events>
+    <log>
+      <core>
+        <writer_model>Bugsnag_Notifier_Model_Log_Writer_Stream</writer_model>
+      </core>
+    </log>
   </global>
   <admin>
     <routers>

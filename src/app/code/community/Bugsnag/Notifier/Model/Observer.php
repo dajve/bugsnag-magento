@@ -100,4 +100,30 @@ class Bugsnag_Notifier_Model_Observer
         return array_map('trim', explode("\n", $this->filterFields));
     }
 
+    public function fireException($message)
+    {
+        $this->initBugsnag();
+        $message = trim($message);
+        $messageArray = explode("\n", $message);
+        if (empty($messageArray)) {
+            return;
+        }
+        $errorClass = 'PHP Error';
+        $errorMessage = array_shift($messageArray);
+        $matches = array();
+        if (preg_match('/exception \'(.*)\' with message \'(.*)\' in .*/', $errorMessage, $matches)) {
+            $errorMessage = $matches[2];
+            $errorClass = $matches[1];
+        }
+        if (count($messageArray) > 0) {
+            $errorMessage .= '... [truncated]';
+        }
+
+        $this->client->notifyError(
+          $errorClass,
+          $errorMessage,
+          array("notifier" => self::$NOTIFIER)
+        );
+    }
+
 }

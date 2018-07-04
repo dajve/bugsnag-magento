@@ -9,6 +9,7 @@ class Bugsnag_Notifier_Model_Log_Writer_Stream extends Zend_Log_Writer_Stream
         Mage::helper('notifier')->sendMessage($event);
       }
 
+      parent::_write($event);
     }
 
   }

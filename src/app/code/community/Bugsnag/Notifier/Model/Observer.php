@@ -182,6 +182,11 @@ class Bugsnag_Notifier_Model_Observer
             $errorClass = $matches[1];
         }
 
+        //dont notify when an "Access denied" Mage_Api2_Exception is thrown
+        if ($errorClass == 'Mage_Api2_Exception' && $errorMessage == 'Access denied') {
+            return false;
+        }
+
         if (count($messageArray) > 0) {
             $errorMessage .= '... [truncated]';
         }

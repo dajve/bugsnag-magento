@@ -15,6 +15,7 @@ class Bugsnag_Notifier_Model_Observer
     private $notifySeverities;
     private $filterFields;
     private $environment;
+    private $appVersion;
 
     public function fireTestEvent($apiKey) {
         if (strlen($apiKey) != 32) {
@@ -45,6 +46,10 @@ class Bugsnag_Notifier_Model_Observer
         if ($environment) {
             $this->environment = $environment;
         }
+        $appVersion = trim(Mage::getStoreConfig('dev/Bugsnag_Notifier/app_version'));
+        if ($appVersion) {
+            $this->appVersion = $appVersion;
+        }
 
         // Activate the bugsnag client
         if (!empty($this->apiKey)) {
@@ -53,6 +58,9 @@ class Bugsnag_Notifier_Model_Observer
             $this->client->setReleaseStage($this->releaseStage())
                          ->setErrorReportingLevel($this->errorReportingLevel())
                          ->setFilters($this->filterFields());
+            if (null !== $this->appVersion) {
+                $this->client->setAppVersion($this->appVersion);
+            }
 
             $this->client->setNotifier(self::$NOTIFIER);
 

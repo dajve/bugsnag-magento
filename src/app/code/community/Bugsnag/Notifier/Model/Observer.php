@@ -40,6 +40,7 @@ class Bugsnag_Notifier_Model_Observer
         $this->apiKey = Mage::getStoreConfig("dev/Bugsnag_Notifier/apiKey");
         $this->notifySeverities = Mage::getStoreConfig("dev/Bugsnag_Notifier/severities");
         $this->filterFields = Mage::getStoreConfig("dev/Bugsnag_Notifier/filterFields");
+        $this->environment = trim(Mage::getStoreConfig("dev/Bugsnag_Notifier/environment"));
 
         // Activate the bugsnag client
         if (!empty($this->apiKey)) {
@@ -74,6 +75,9 @@ class Bugsnag_Notifier_Model_Observer
 
     private function releaseStage()
     {
+        if(!is_null($this->environment)) {
+            return $this->environment;
+        }
         return Mage::getIsDeveloperMode() ? "development" : "production";
     }
 
